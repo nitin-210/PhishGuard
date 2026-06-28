@@ -1,0 +1,11 @@
+services:
+  phishguard:
+    build: .
+    image: phishguard
+    ports:
+      - "8000:8000"
+    environment:
+      # Paste your free keys here (or leave blank to run model-only).
+      - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY:-}
+      - URLSCAN_API_KEY=${URLSCAN_API_KEY:-}
+    restart: unless-stopped

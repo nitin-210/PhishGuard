@@ -1,0 +1,59 @@
+/* PhishGuard injected UI (scoped with pg- prefixes to avoid clashing with Gmail/Outlook) */
+
+#pg-fab {
+  position: fixed; right: 20px; bottom: 20px; z-index: 2147483646;
+  background: #0f2742; color: #fff; font: 600 13px/1 -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  padding: 11px 15px; border-radius: 999px; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0,0,0,.25); user-select: none;
+}
+#pg-fab:hover { background: #1f6feb; }
+
+.pg-panel {
+  position: fixed; right: 20px; bottom: 70px; z-index: 2147483647;
+  width: 360px; max-height: 78vh; overflow: auto;
+  background: #fff; color: #0f2742; border-radius: 14px;
+  border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,.28);
+  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+.pg-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid #eef2f6; position: sticky; top: 0; background: #fff;
+}
+.pg-logo { font-weight: 700; font-size: 14px; }
+.pg-close { cursor: pointer; color: #5b6b7b; font-size: 15px; }
+.pg-body { padding: 12px 14px 16px; }
+.pg-lbl { display: block; font-size: 11px; font-weight: 600; color: #5b6b7b; margin: 9px 0 3px; }
+.pg-in {
+  width: 100%; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: 8px 10px; font-size: 13px; font-family: inherit; color: #0f2742; background: #fff;
+}
+.pg-ta { min-height: 90px; resize: vertical; }
+.pg-btn {
+  width: 100%; margin-top: 12px; border: none; border-radius: 8px; cursor: pointer;
+  background: #1f6feb; color: #fff; font-weight: 600; font-size: 13px; padding: 10px;
+}
+.pg-btn:hover { background: #1a5fd0; }
+.pg-muted { color: #5b6b7b; font-size: 12px; margin-top: 8px; }
+.pg-err { background: #fde7e7; color: #b91c1c; padding: 10px; border-radius: 8px; font-size: 12.5px; margin-top: 10px; }
+
+.pg-verdict { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; margin-top: 12px; font-size: 12.5px; }
+.pg-badge { font-weight: 800; padding: 4px 10px; border-radius: 999px; color: #fff; font-size: 12px; }
+.pg-pct { margin-left: auto; font-weight: 800; font-size: 20px; }
+.pg-phish { background: #fde7e7; color: #b91c1c; } .pg-phish .pg-badge { background: #b91c1c; }
+.pg-susp  { background: #fdf1d8; color: #b45309; } .pg-susp  .pg-badge { background: #b45309; }
+.pg-safe  { background: #e6f6ec; color: #15803d; } .pg-safe  .pg-badge { background: #15803d; }
+
+.pg-sec { text-transform: uppercase; letter-spacing: .4px; font-size: 11px; color: #5b6b7b; margin: 14px 0 6px; }
+.pg-reasons { margin: 0; padding-left: 0; list-style: none; }
+.pg-reasons li { font-size: 12.5px; padding: 7px 10px; border: 1px solid #eef2f6; border-radius: 8px; margin-bottom: 5px; }
+.pg-reasons li::before { content: "⚠ "; color: #b45309; }
+.pg-link { border: 1px solid #eef2f6; border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; }
+.pg-url { font-family: ui-monospace, Consolas, monospace; font-size: 11.5px; word-break: break-all; margin-bottom: 5px; }
+.pg-chip { font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #f1f4f8; color: #5b6b7b; }
+.pg-chip.pg-malicious { background: #fde7e7; color: #b91c1c; }
+.pg-chip.pg-clean { background: #e6f6ec; color: #15803d; }
+.pg-det { margin-top: 8px; border: 1px solid #e2e8f0; background: #f1f4f8; color: #0f2742;
+  border-radius: 8px; font-size: 11.5px; font-weight: 600; padding: 6px 10px; cursor: pointer; }
+.pg-det:hover { background: #e2e8f0; }
+.pg-deto { margin-top: 8px; padding: 9px; border: 1px dashed #cbd5e1; border-radius: 8px; }
+.pg-deto a { color: #1f6feb; font-size: 11.5px; }

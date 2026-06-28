@@ -1,0 +1,8 @@
+# The throwaway detonator image. One run = one link, then the container is gone.
+FROM mcr.microsoft.com/playwright/python:v1.44.0-jammy
+WORKDIR /app
+# Make sure the Playwright package and the Chromium browser are present.
+RUN pip install --no-cache-dir playwright && python -m playwright install chromium
+ENV HOME=/tmp
+COPY detonate_once.py .
+ENTRYPOINT ["python", "detonate_once.py"]

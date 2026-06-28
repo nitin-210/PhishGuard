@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishGuard — Email Checker</title>
+<style>
+  :root{
+    --navy:#0f2742; --blue:#1f6feb; --grey:#5b6b7b; --bg:#f4f7fb;
+    --green:#15803d; --green-bg:#e6f6ec; --amber:#b45309; --amber-bg:#fdf1d8;
+    --red:#b91c1c; --red-bg:#fde7e7; --line:#e2e8f0; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--navy);line-height:1.5}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .logo{width:40px;height:40px;border-radius:10px;background:var(--navy);
+        display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+  h1{font-size:24px;margin:0}
+  .tag{color:var(--grey);font-size:14px;margin:2px 0 22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+        padding:20px;box-shadow:0 1px 3px rgba(15,39,66,.05);margin-bottom:18px}
+  label{display:block;font-weight:600;font-size:13px;margin:12px 0 5px;color:var(--navy)}
+  input,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);
+        border-radius:9px;font-size:14px;font-family:inherit;color:var(--navy);background:#fff}
+  textarea{resize:vertical;min-height:110px}
+  input:focus,textarea:focus{outline:none;border-color:var(--blue);
+        box-shadow:0 0 0 3px rgba(31,111,235,.12)}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row > div{flex:1;min-width:220px}
+  .actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+  button{cursor:pointer;border:none;border-radius:9px;font-size:14px;font-weight:600;padding:11px 18px}
+  .primary{background:var(--blue);color:#fff}
+  .primary:hover{background:#1a5fd0}
+  .ghost{background:#eef2f7;color:var(--navy)}
+  .ghost:hover{background:#e2e8f0}
+  .spacer{flex:1}
+  /* result */
+  #result{display:none}
+  .verdict{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;margin-bottom:6px}
+  .verdict .badge{font-size:15px;font-weight:800;letter-spacing:.3px;padding:6px 12px;border-radius:999px;color:#fff;white-space:nowrap}
+  .verdict .pct{font-size:30px;font-weight:800;margin-left:auto}
+  .v-phish{background:var(--red-bg);color:var(--red)} .v-phish .badge{background:var(--red)}
+  .v-susp{background:var(--amber-bg);color:var(--amber)} .v-susp .badge{background:var(--amber)}
+  .v-safe{background:var(--green-bg);color:var(--green)} .v-safe .badge{background:var(--green)}
+  .meter{height:10px;border-radius:999px;background:#eceff3;overflow:hidden;margin:14px 0 4px}
+  .meter > i{display:block;height:100%;border-radius:999px}
+  .muted{color:var(--grey);font-size:12.5px}
+  h3{font-size:14px;margin:20px 0 8px;text-transform:uppercase;letter-spacing:.4px;color:var(--grey)}
+  ul.reasons{margin:0;padding-left:0;list-style:none}
+  ul.reasons li{padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:7px;
+        font-size:14px;display:flex;gap:9px;align-items:flex-start;background:#fff}
+  ul.reasons li::before{content:"⚠";color:var(--amber)}
+  .links .lnk{border:1px solid var(--line);border-radius:9px;padding:11px 12px;margin-bottom:8px;background:#fff}
+  .links .url{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all;color:var(--navy)}
+  .chips{display:flex;gap:7px;margin-top:7px;flex-wrap:wrap}
+  .chip{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--grey)}
+  .chip.bad{background:var(--red-bg);color:var(--red);border-color:#f3c4c4}
+  .chip.clean{background:var(--green-bg);color:var(--green);border-color:#bfe4cb}
+  .chip.skip{background:#f1f4f8;color:var(--grey)}
+  .loading{display:none;color:var(--grey);font-size:14px;margin-top:14px}
+  .err{display:none;background:var(--red-bg);color:var(--red);padding:12px;border-radius:9px;margin-top:14px;font-size:14px}
+  footer{color:var(--grey);font-size:12px;text-align:center;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">🛡️</div>
+    <div>
+      <h1>PhishGuard</h1>
+    </div>
+  </header>
+  <p class="tag">Paste an email below and check whether it's a phishing attempt.</p>
+
+  <div class="card">
+    <label for="paste">Quick check — paste a link, a domain, or a whole email</label>
+    <textarea id="paste" placeholder="e.g.  http://paypa1-security.com/login
+or paste an entire email (From:, Subject: and body)"></textarea>
+    <div class="actions">
+      <button class="primary" onclick="quickCheck()">Check this</button>
+    </div>
+    <div style="border-top:1px solid var(--line);margin:18px 0 4px"></div>
+    <p class="muted" style="margin:0 0 4px">…or fill in the fields separately:</p>
+    <div class="row">
+      <div>
+        <label for="sender">From (sender)</label>
+        <input id="sender" placeholder="e.g. PayPal &lt;security@paypa1-security.com&gt;">
+      </div>
+      <div>
+        <label for="subject">Subject</label>
+        <input id="subject" placeholder="e.g. Your account has been limited">
+      </div>
+    </div>
+    <label for="body">Email body</label>
+    <textarea id="body" placeholder="Paste the email text here..."></textarea>
+
+    <div class="actions">
+      <button class="primary" onclick="analyze()">Analyze email</button>
+      <button class="ghost" onclick="loadSample('phish')">Load phishing example</button>
+      <button class="ghost" onclick="loadSample('legit')">Load safe example</button>
+      <span class="spacer"></span>
+      <button class="ghost" onclick="clearAll()">Clear</button>
+    </div>
+    <div class="loading" id="loading">Analyzing…</div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="card" id="result">
+    <div class="verdict" id="verdictBox">
+      <span class="badge" id="badge">—</span>
+      <span id="verdictText"></span>
+      <span class="pct" id="pct">0%</span>
+    </div>
+    <div class="meter"><i id="meterFill"></i></div>
+    <div class="muted" id="modelNote"></div>
+
+    <h3>Why</h3>
+    <ul class="reasons" id="reasons"></ul>
+
+    <div id="linksWrap">
+      <h3>Links found</h3>
+      <div class="links" id="links"></div>
+    </div>
+  </div>
+
+  <footer>PhishGuard · AI + rules + live link reputation · runs locally</footer>
+</div>
+
+<script>
+const SAMPLES = {
+  phish: {
+    sender: "PayPal Support <security@paypa1-security.com>",
+    subject: "Your account has been limited",
+    body: "Dear Customer, unusual sign-in activity detected. Verify your login and password immediately or your account will be suspended: http://192.168.0.5/login"
+  },
+  legit: {
+    sender: "GitHub <notifications@github.com>",
+    subject: "New comment on your pull request",
+    body: "Hi Nitin, someone commented on your pull request. You can view it here: https://github.com/your/repo/pull/12"
+  }
+};
+
+function loadSample(k){
+  document.getElementById('sender').value = SAMPLES[k].sender;
+  document.getElementById('subject').value = SAMPLES[k].subject;
+  document.getElementById('body').value = SAMPLES[k].body;
+}
+function clearAll(){
+  ['sender','subject','body'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('result').style.display='none';
+  document.getElementById('err').style.display='none';
+}
+
+async function quickCheck(){
+  const text = document.getElementById('paste').value.trim();
+  const err = document.getElementById('err');
+  if(!text){ err.textContent="Paste a link, domain, or email first."; err.style.display='block'; return; }
+  await send({ text });
+}
+
+async function analyze(){
+  await send({
+    sender: document.getElementById('sender').value,
+    subject: document.getElementById('subject').value,
+    body: document.getElementById('body').value
+  });
+}
+
+async function send(payload){
+  const err = document.getElementById('err');
+  const loading = document.getElementById('loading');
+  err.style.display='none';
+  document.getElementById('result').style.display='none';
+  if(!payload.text && !payload.body && !payload.subject){ err.textContent="Please paste something or fill in a field first."; err.style.display='block'; return; }
+  loading.style.display='block';
+  try{
+    const res = await fetch('/analyze', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    loading.style.display='none';
+    if(data.error){ err.textContent=data.error; err.style.display='block'; return; }
+    render(data);
+  }catch(e){
+    loading.style.display='none';
+    err.textContent="Could not reach the server. Is it running? (uvicorn src.api:app --reload)";
+    err.style.display='block';
+  }
+}
+
+function render(d){
+  const box = document.getElementById('verdictBox');
+  const badge = document.getElementById('badge');
+  const vtext = document.getElementById('verdictText');
+  const pct = document.getElementById('pct');
+  const fill = document.getElementById('meterFill');
+  const score = Math.round((d.final_score||0)*100);
+
+  let cls='v-safe', color='#15803d', msg='This email looks safe.';
+  if(d.final_verdict==='PHISHING'){ cls='v-phish'; color='#b91c1c'; msg='This is very likely a phishing email. Do not click its links.'; }
+  else if(d.final_verdict==='SUSPICIOUS'){ cls='v-susp'; color='#b45309'; msg='This email is suspicious. Be careful.'; }
+
+  box.className='verdict '+cls;
+  badge.textContent=d.final_verdict;
+  vtext.textContent=msg;
+  pct.textContent=score+'% risk';
+  fill.style.width=score+'%';
+  fill.style.background=color;
+
+  const note=document.getElementById('modelNote');
+  let n = `AI phishing score: ${Math.round((d.model_prob||0)*100)}% (0% = safe, 100% = definitely phishing)`;
+  if(d.rule_hits && d.rule_hits.length){ n += ` · ${d.rule_hits.length} security rule(s) triggered`; }
+  note.textContent=n;
+
+  const ul=document.getElementById('reasons');
+  ul.innerHTML='';
+  (d.reasons||[]).forEach(r=>{
+    const li=document.createElement('li');
+    li.appendChild(document.createTextNode(r));
+    ul.appendChild(li);
+  });
+  if(!(d.reasons||[]).length){ ul.innerHTML='<li style="color:var(--grey)">No strong phishing signals found.</li>'; }
+
+  const linksWrap=document.getElementById('linksWrap');
+  const links=document.getElementById('links');
+  links.innerHTML='';
+  const urls=d.links_found||[];
+  if(!urls.length){ linksWrap.style.display='none'; }
+  else{
+    linksWrap.style.display='block';
+    urls.forEach(u=>{
+      const reps=(d.link_reputation||[]).filter(x=>x.url===u);
+      const div=document.createElement('div'); div.className='lnk';
+      const url=document.createElement('div'); url.className='url'; url.textContent=u; div.appendChild(url);
+      const chips=document.createElement('div'); chips.className='chips';
+      reps.forEach(r=>{
+        const c=document.createElement('span');
+        let k='skip';
+        if(r.verdict==='malicious') k='bad';
+        else if(r.verdict==='clean') k='clean';
+        c.className='chip '+k;
+        c.textContent=`${r.source}: ${r.verdict}`;
+        c.title=r.detail||'';
+        chips.appendChild(c);
+      });
+      div.appendChild(chips);
+      const det=document.createElement('button');
+      det.className='ghost'; det.style.cssText='margin-top:8px;font-size:12px;padding:7px 12px';
+      det.textContent='🔬 Detonate safely';
+      const report=document.createElement('div');
+      det.onclick=()=>detonate(u,det,report);
+      div.appendChild(det); div.appendChild(report);
+      links.appendChild(div);
+    });
+  }
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+async function detonate(url,btn,box){
+  btn.disabled=true; btn.textContent='Detonating…';
+  box.innerHTML='';
+  try{
+    const res=await fetch('/detonate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const d=await res.json();
+    renderDetonation(box,d);
+  }catch(e){
+    box.innerHTML='<div class="err" style="display:block">Could not reach the server.</div>';
+  }
+  btn.disabled=false; btn.textContent='🔬 Detonate safely';
+}
+
+function renderDetonation(box,d){
+  const s=d.static_analysis||{}, dy=d.dynamic_analysis;
+  let flags=(s.suspicious_flags||[]).map(f=>`<li>${f}</li>`).join('');
+  if(!flags) flags='<li style="color:var(--grey)">No structural red flags.</li>';
+  let dyn='';
+  if(dy){
+    let vcolor = dy.verdict==='malicious'?'#b91c1c':(dy.verdict==='clean'?'#15803d':'#b45309');
+    dyn=`<div style="margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:8px">
+      <div style="font-weight:600;color:${vcolor}">Sandbox verdict: ${dy.verdict} <span class="muted">(${dy.engine})</span></div>
+      ${dy.final_url?`<div class="muted" style="margin-top:4px">Final address: ${dy.final_domain||dy.final_url}</div>`:''}
+      ${dy.title?`<div class="muted">Page title: ${dy.title}</div>`:''}
+      ${dy.screenshot?`<a href="${dy.screenshot}" target="_blank">View sandbox screenshot ↗</a>`:''}
+      ${dy.result_page?`<div><a href="${dy.result_page}" target="_blank">Full sandbox report ↗</a></div>`:''}
+      ${dy.detail?`<div class="muted">${dy.detail}</div>`:''}
+    </div>`;
+  } else if(d.note){
+    dyn=`<div class="muted" style="margin-top:8px">${d.note}</div>`;
+  }
+  box.innerHTML=`<div style="margin-top:10px;padding:10px;border:1px dashed var(--line);border-radius:8px">
+    <div style="font-size:13px;margin-bottom:6px">${d.summary||''}</div>
+    <div class="muted">Structure: ${s.scheme}://${s.host}${s.is_ip_address?' (raw IP)':''} · risk: <b>${s.risk}</b></div>
+    <ul class="reasons" style="margin-top:6px">${flags}</ul>
+    ${dyn}
+  </div>`;
+}
+
+// preload the phishing example so the page isn't empty
+loadSample('phish');
+</script>
+</body>
+</html>

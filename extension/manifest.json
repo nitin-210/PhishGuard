@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "PhishGuard — Email Phishing Checker",
+  "version": "1.0",
+  "description": "Check the email you're reading in Gmail or Outlook for phishing, using your PhishGuard backend.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*",
+        "https://outlook.live.com/*",
+        "https://outlook.office.com/*",
+        "https://outlook.office365.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["panel.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PhishGuard settings"
+  }
+}
