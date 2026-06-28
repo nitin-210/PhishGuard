@@ -22,4 +22,5 @@ ENV VIRUSTOTAL_API_KEY=""
 ENV URLSCAN_API_KEY=""
 
 EXPOSE 8000
-CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use the platform-provided $PORT if set (e.g. on Render), else default to 8000.
+CMD ["sh", "-c", "uvicorn src.api:app --host 0.0.0.0 --port ${PORT:-8000}"]
